@@ -81,84 +81,13 @@ JOIN (
 
 ---
 
-## 三、拉链表（SCD Type 2）
-
-### 适用场景
-- 需要保留数据历史变化
-- 分析数据变化趋势
-- 维度表变化较慢
-
-### 实现方式
-
-```sql
--- 拉链表表结构
--- start_date: 记录生效开始日期
--- end_date: 记录失效日期（9999-12-31 表示当前有效）
-CREATE TABLE ods_user_scd (
-    user_id    BIGINT,
-    user_name  STRING,
-    city       STRING,
-    start_date STRING,
-    end_date   STRING
-) PARTITIONED BY (dt STRING);
-
--- Step 1: 保留未变化的记录
-INSERT INTO TABLE ods_user_scd PARTITION (dt='${bizdate}')
-SELECT a.user_id
-     , a.user_name
-     , a.city
-     , a.start_date
-     , CASE WHEN b.user_id IS NOT NULL THEN '${yesterday}' 
-            ELSE a.end_date END AS end_date
-FROM ods_user_scd a
-LEFT JOIN (
-    SELECT * FROM ods_user WHERE dt = '${bizdate}'
-) b ON a.user_id = b.user_id
-WHERE a.end_date = '9999-12-31'
-  AND a.dt = '${max_date}';
-
--- Step 2: 新增和变化的记录
-INSERT INTO TABLE ods_user_scd PARTITION (dt='${bizdate}')
-SELECT user_id
-     , user_name
-     , city
-     , '${bizdate}' AS start_date
-     , '9999-12-31' AS end_date
-FROM ods_user
-WHERE dt = '${bizdate}';
-```
-
-### 拉链表查询
-
-```sql
--- 查询某一天的用户信息
-SELECT * FROM ods_user_scd
-WHERE '${target_date}' BETWEEN start_date AND end_date;
-
--- 查询历史变化
-SELECT * FROM ods_user_scd
-WHERE user_id = 12345
-  AND dt <= '${target_date}'
-ORDER BY start_date;
-```
-
-### 优缺点
-| 优点 | 缺点 |
-|------|------|
-| 保留历史 | 存储膨胀 |
-| 分析变化趋势 | 查询复杂 |
-| 数据可追溯 | 实现成本高 |
-
----
-
-## 四、同步模式选择指南
+## 三、同步模式选择指南
 
 | 场景 | 推荐模式 | 原因 |
 |------|---------|------|
 | 维度表（地区、城市等） | 全量覆盖 | 数据量小，全量简单 |
 | 配置表、字典表 | 全量覆盖 | 数据变化少 |
 | 订单、交易等事实表 | 增量追加 | 数据量大，只需新增 |
-| 用户、产品等缓慢变化维度 | 拉链表 | 需要保留历史变化 |
 | 日志、行为数据 | 增量追加 | 只需要最新数据 |
 
 ---
@@ -177,8 +106,4 @@ A: 处理方式：
 - 使用主键进行 MERGE 操作（Spark/Flink）
 - 定期执行全量覆盖清理历史重复
 
-### Q3: 拉链表存储膨胀怎么办？
-A: 处理方式：
-- 设置历史数据归档策略
-- 定期关闭过老的拉链记录
-- 使用分区表优化查询
+

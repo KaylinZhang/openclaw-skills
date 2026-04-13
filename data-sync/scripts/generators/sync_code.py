@@ -15,7 +15,7 @@ def generate_sync_code(source_type, source_table, target_type, target_table, mod
         source_table: 源表名
         target_type: 目标类型 (hive, mysql, etc.)
         target_table: 目标表名
-        mode: 同步模式 (full_overwrite, incremental, scd)
+        mode: 同步模式 (full_overwrite, incremental)
         fields: 同步字段列表
         where_condition: WHERE 条件
         partition_field: 分区字段
@@ -99,37 +99,6 @@ FROM {source_table}
 WHERE {partition_field} = '${{bizdate}}';
 """
 
-    elif mode == "scd":
-        # 拉链表模式 (Slowly Changing Dimension)
-        if target_type == "hive":
-            result["sync_code"] = f"""
--- 拉链表同步: {source_table} -> {target_table}
--- Step 1: 关闭历史版本
-SET hive.exec.dynamic.partition.mode=nonstrict;
-
-INSERT INTO TABLE {target_table}
-PARTITION ({partition_field})
-SELECT *
-     , '${{bizdate}}' AS {partition_field}
-FROM (
-    -- 保留未变化的记录
-    SELECT a.* FROM {target_table} a
-    LEFT JOIN {source_table} b ON a.id = b.id
-    WHERE a.{partition_field} = '${{max_date}}'
-      AND (b.id IS NULL OR a.hash_md5 = md5(concat_ws('|', a.*)))
-    
-    UNION ALL
-    
-    -- 新增和变化的记录
-    SELECT id
-         , col1, col2, ...
-         , '${{bizdate}}' AS start_date
-         , '9999-12-31' AS end_date
-    FROM {source_table}
-    WHERE update_time >= '${{bizdate}}'
-) t;
-"""
-
     # 生成 DDL
     if target_type == "hive":
         result["ddl_code"] = f"""
@@ -164,7 +133,7 @@ def main():
     parser.add_argument('--source-table', required=True, help='源表名')
     parser.add_argument('--target-type', required=True, help='目标类型')
     parser.add_argument('--target-table', required=True, help='目标表名')
-    parser.add_argument('--mode', required=True, choices=['full_overwrite', 'incremental', 'scd'], help='同步模式')
+    parser.add_argument('--mode', required=True, choices=['full_overwrite', 'incremental'], help='同步模式')
     parser.add_argument('--fields', help='同步字段，逗号分隔')
     parser.add_argument('--where', help='WHERE 条件')
     parser.add_argument('--partition', default='dt', help='分区字段')

@@ -2,8 +2,8 @@
 name: data-sync
 description: 数据同步专家。用于创建和管理离线数据同步任务。
 支持的数据源方向：
-  - 入湖：MySQL-binlog / MySQL-快照 / Kafka / MQ / PublicLog / SR / ClickHouse → Hive
-  - 出湖：Hive → MySQL
+  - 数据源同步到目标：MySQL-binlog / MySQL-快照 / Kafka / MQ / PublicLog / SR / ClickHouse → 目标存储
+  - 数据源回写到源：目标存储 → MySQL
 触发场景：创建同步任务、管理同步任务、同步任务报错处理、数据源配置。
 ---
 
@@ -48,7 +48,7 @@ Step 6: 汇总确认
 
 ## 支持的数据源方向
 
-### 入湖（Source → Hive）
+### 数据源同步到目标（Source → Target）
 
 | 源端类型 | 说明 | 调用脚本 | 获取信息 |
 |----------|------|----------|----------|
@@ -60,12 +60,12 @@ Step 6: 汇总确认
 | **SR** | 读取流数据 | sr_query.py | 流数据列表、Schema |
 | **ClickHouse** | 读取 ClickHouse | ck_query.py | 表结构、引擎类型 |
 
-### 出湖（Hive → Target）
+### 数据源回写（Target → MySQL）
 
 | 目标端类型 | 说明 | 调用脚本 |
 |------------|------|----------|
-| **Hive** | 入湖写入 | hive_write.py |
-| **MySQL** | 出湖回写 | mysql_write.py |
+| **Hive** | 数据写入 | hive_write.py |
+| **MySQL** | 数据回写 | mysql_write.py |
 
 ### 内置数据源（无需注册）
 
@@ -82,7 +82,6 @@ Step 6: 汇总确认
 |------|------|---------|---------|
 | **全量覆盖** | 每次整表拉取，覆盖写入 | 维度表、配置表 | INSERT OVERWRITE |
 | **增量追加** | 基于时间戳/主键，只拉新增 | Fact 表、行为数据 | INSERT INTO + WHERE |
-| **拉链表** | 保留历史状态 + 最新状态 | 缓慢变化维度 | SCD Type 2 |
 
 ---
 
@@ -133,7 +132,7 @@ Step 6: 汇总确认
 |------|------|
 | `scripts/datasource/list.py` | 列出所有可用数据源 |
 
-### 入湖连接器（Source → Hive）
+### 数据源同步连接器（Source → Target）
 
 | 脚本 | 用途 | 调用示例 |
 |------|------|----------|
@@ -144,7 +143,7 @@ Step 6: 汇总确认
 | `scripts/connectors/sr_query.py` | SR 流数据查询 | `--ds xxx --stream xxx --mode list/schema` |
 | `scripts/connectors/ck_query.py` | ClickHouse 查询 | `--ds xxx --database xxx --table xxx --mode schema` |
 
-### 出湖连接器（Hive → Target）
+### 数据源回写连接器（Target → MySQL）
 
 | 脚本 | 用途 | 调用示例 |
 |------|------|----------|
@@ -180,7 +179,7 @@ AI：好的，我来帮你创建同步任务。先确认一下数据源：
 AI：收到。确认同步配置：
     - 来源：ds_mysql_prod / order 表
     - 目标：Hive / 当前项目库 / order_hive
-    - 同步模式：？（全量覆盖/增量追加/拉链表）
+    - 同步模式：？（全量覆盖/增量追加）
     - 执行方式：？（每天凌晨/手动执行）
     - 绑定基线：？
 
@@ -258,6 +257,6 @@ AI：收到，让我查一下表结构：
 
 详细的配置规范和数据源定义请参考：
 
-- `references/sync_modes.md` - 同步模式详解（全量/增量/拉链）
+- `references/sync_modes.md` - 同步模式详解（全量/增量）
 - `references/datasource_config.md` - 数据源配置规范
 - `references/alert_rules.md` - 告警规则说明
