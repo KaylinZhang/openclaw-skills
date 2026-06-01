@@ -1,6 +1,6 @@
 ---
-name: dataentry-sync-task
-description: DataDream 平台同步任务的创建和修改。支持创建数据填报2Hive同步任务、修改同步任务配置。当用户提到"创建同步任务"、"新建同步任务"、"修改同步任务"、"编辑同步任务"时触发此skill。
+name: dataentry2hive-sync
+description: DataDream 平台数据填报2Hive同步任务的创建和修改。将数易数据填报表同步到Hive表。当用户提到"创建数据填报同步任务"、"数据填报2Hive"、"新建数据填报同步任务"时触发此skill。
 triggers:
   - 创建同步任务
   - 新建同步任务
