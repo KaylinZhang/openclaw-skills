@@ -10,6 +10,18 @@ description: DataDream 数据源管理。创建、查询、修改、删除数据
 
 **强制**：先确认 DataDream MCP 服务已安装。未安装则立即结束。
 
+## MCP Tools 工具映射
+
+| 操作 | MCP 工具 |
+|------|---------|
+| 创建数据源 | `create_datasource` |
+| 查询数据源列表 | `list_datasources` |
+| 查询数据源详情 | `get_datasource` |
+| 修改数据源 | `update_datasource` |
+| 删除数据源 | `delete_datasource` |
+
+---
+
 ## 能力边界
 
 | 操作 | 支持状态 |
@@ -81,7 +93,7 @@ DataSource
 
 **约束**：
 - 可修改字段：名称、Token（空间 ID 不可修改）
-- 参考文档：[references/cooper-guide.md](references/cooper-guide.md)
+- 参考文档 → [references/product-manuals.md](references/product-manuals.md)
 
 ---
 
@@ -89,7 +101,7 @@ DataSource
 
 **类型标识**：`mysql`
 
-*后续版本扩展*
+*后续版本待扩展*
 
 ---
 
@@ -133,7 +145,7 @@ DataSource
 |------------|------------|
 | 数易数据填报 | 仅名称 |
 | Cooper | 名称、Token |
-| MySQL | 名称、host、port、database、username、password |
+| *版本待扩展* MySQL | 名称、host、port、database、username、password | 
 
 **流程**：
 1. 查询数据源当前信息和类型
@@ -166,15 +178,11 @@ DataSource
 ## 约束与注意事项
 
 - **项目归属**：所有数据源操作默认在当前项目下进行，无需用户额外指定项目
-- **类型不可变**：数据源类型一旦创建不可修改
 - **删除保护**：有关联同步任务的数据源不可删除，防止破坏已有同步链路
 - **名称唯一**：同一项目下数据源名称不允许重复
-- **环境约束**：数易数据填报类型要求 DataDream 和数易同环境
 
 ---
 
 ## 详细参考
 
-- 数易项目空间查询 → [references/shuyi-projectspace.md](references/shuyi-projectspace.md)
-- Cooper 数据源配置指引 → [references/cooper-guide.md](references/cooper-guide.md)
-- 数据源类型扩展说明 → [references/datasource-types.md](references/datasource-types.md)
+> 具体产品使用手册查阅 →  [references/product-manuals.md](references/product-manuals.md)
