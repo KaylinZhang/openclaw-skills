@@ -8,7 +8,7 @@ description: DataDream 数据源管理。创建、查询、修改、删除数据
 
 ## 前置检查
 
-**强制**：第一次调用skill时，先确认 DataDream MCP 服务已安装。
+**强制**：第一次调用skill时，先确认 DataDream MCP 服务已安装。未安装则立即结束。
 
 ## MCP Tools 工具映射
 
