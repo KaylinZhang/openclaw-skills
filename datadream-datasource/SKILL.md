@@ -187,4 +187,4 @@ DataSource
 
 ## 详细参考
 
-> 具体产品使用细节可查阅产品手册 →  [references/product-manuals.md](references/product-manuals.md)
+> 不主动加载reference，当遇到不知道的问题时查阅产品手册 →  [references/product-manuals.md](references/product-manuals.md)
